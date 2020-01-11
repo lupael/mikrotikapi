@@ -1,0 +1,276 @@
+<?php
+	session_start();
+	ob_start();
+	include("../include/class.mysqldb.php");
+	include("../include/config.inc.php");	
+	if($_SESSION['APIUser'] == '' and $_SESSION['EmpUser']==''){
+		echo "<meta http-equiv='refresh' content='0;url=../logout.php' />";
+		exit();		
+	}else if($_SESSION['id'] == ''){
+		echo "<meta http-equiv='refresh' content='0;url=../index.php' />";
+		exit();
+	}
+
+?>
+
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>API MikroTik - Administrator</title>
+ <!-- New -->   
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
+          page. However, you can choose any other skin. Make sure you
+          apply the skin class to the body tag so the changes take effect.
+    -->
+    <link rel="stylesheet" href="../dist/css/skins/skin-blue.min.css">
+ <!-- New -->   
+
+
+
+
+    <!-- Custom Fonts -->
+    <link href="../font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<!--
+  BODY TAG OPTIONS:
+  =================
+  Apply one or more of the following classes to get the
+  desired effect
+  |---------------------------------------------------------|
+  | SKINS         | skin-blue                               |
+  |               | skin-black                              |
+  |               | skin-purple                             |
+  |               | skin-yellow                             |
+  |               | skin-red                                |
+  |               | skin-green                              |
+  |---------------------------------------------------------|
+  |LAYOUT OPTIONS | fixed                                   |
+  |               | layout-boxed                            |
+  |               | layout-top-nav                          |
+  |               | sidebar-collapse                        |
+  |               | sidebar-mini                            |
+  |---------------------------------------------------------|
+  -->
+  <body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+
+      <!-- Main Header -->
+      <header class="main-header">
+
+        <!-- Logo -->
+        <a href="" class="logo">
+          <!-- mini logo for sidebar mini 50x50 pixels -->
+          <span class="logo-mini"><b>API</b></span>
+          <!-- logo for regular state and mobile devices -->
+          <span class="logo-lg"><b>Admin</b>API</span>
+        </a>
+
+        <!-- Header Navbar -->
+        <nav class="navbar navbar-static-top" role="navigation">
+          <!-- Sidebar toggle button-->
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <span class="sr-only">Toggle navigation</span>
+          </a>
+          <!-- Navbar Right Menu -->
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+              <!-- User Account Menu -->
+              <li class="dropdown user user-menu">
+                <!-- Menu Toggle Button -->
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <!-- The user image in the navbar-->
+                  <img src="../dist/img/logo.png" class="user-image" alt="User Image">
+                  <!-- hidden-xs hides the username on small devices so only the image appears. -->
+                  <span class="hidden-xs">Infininity Network</span>
+                </a>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!-- Left side column. contains the logo and sidebar -->
+      <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+          <!-- Sidebar user panel (optional) -->
+          <div class="user-panel">
+            <div class="pull-left image">
+              <img src="../dist/img/logo.png" class="img-circle" alt="User Image">
+            </div>
+            <div class="pull-left info">
+              <p>Infinity Network</p>
+              <!-- Status -->
+              <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+          </div>
+
+          <!-- search form (Optional) -->
+<!--          <form action="#" method="get" class="sidebar-form">
+            <div class="input-group">
+              <input type="text" name="q" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
+              </span>
+            </div>
+          </form>  -->
+          <!-- /.search form -->
+
+          <!-- sidebar menu: : style can be found in sidebar.less -->
+          <ul class="sidebar-menu">
+           <li class="header">MAIN NAVIGATION</li>
+            <li class="active treeview">
+              <a href="index.php">
+                <i class="fa fa-dashboard"></i> <span> รายละเอียดของระบบ</span>
+              </a>
+            </li>
+            
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-user fa-fw"></i> <span> การจัดการผู้ใช้</span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> Hotspot<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_user"><i class="fa fa-circle-o"></i> เพิ่มผู้ใช้งาน (หนึ่ง)</a></li>
+                    <li><a href="index.php?opt=add_genuser"><i class="fa fa-circle-o"></i> เพิ่มผู้ใช้งาน (กลุ่ม)</a></li>
+                  </ul>
+                </li>
+<!--                    <li>
+                      <a href="#"><i class="fa fa-circle-o"></i> Level Two <i class="fa fa-angle-left pull-right"></i></a>
+                      <ul class="treeview-menu">
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+                      </ul>
+                    </li>  -->
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> PPPoE<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_pppoe"><i class="fa fa-circle-o"></i> เพิ่มผู้ใช้งาน (หนึ่ง)</a></li>
+                <!--    <li><a href="#"><i class="fa fa-circle-o"></i> เพิ่มผู้ใช้งาน (กลุ่ม)</a></li>  -->
+                  </ul>
+                </li>
+                  <li><a href="index.php?opt=user_list"><i class="fa fa-circle-o"></i> แสดงผู้ใช้งานทั้งหมด</a></li>
+              </ul>
+            </li>
+
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-edit fa-fw"></i> <span> การจัดการแพคเกจ</span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> Hotspot<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_profile"><i class="fa fa-circle-o"></i> เพิ่มแพคเกจ</a></li>
+                    <li><a href="index.php?opt=profile"><i class="fa fa-circle-o"></i> แสดงรายละเอียดแพคเกจ</a></li>
+                  </ul>
+                </li>
+<!--                    <li>
+                      <a href="#"><i class="fa fa-circle-o"></i> Level Two <i class="fa fa-angle-left pull-right"></i></a>
+                      <ul class="treeview-menu">
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+                        <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+                      </ul>
+                    </li>  -->
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> PPPoE<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_profile_pppoe"><i class="fa fa-circle-o"></i> เพิ่มแพคเกจ</a></li>
+                    <li><a href="index.php?opt=profile_pppoe"><i class="fa fa-circle-o"></i> แสดงรายละเอียดแพคเกจ</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-bar-chart-o fa-fw"></i> <span> ผู้ใช้งานออนไลน์</span>
+                <i class="fa fa-angle-left pull-right"></i>
+              </a>
+              <ul class="treeview-menu">
+                <li><a href="index.php?opt=useronline"><i class="fa fa-circle-o"></i> Hotspot</a></li>
+                <li><a href="index.php?opt=pppoeonline"><i class="fa fa-circle-o"></i> PPPoE</a></li>
+              </ul>
+            </li>
+
+            <li class="treeview">
+              <a href="../index.php">
+                <i class="fa fa-desktop"></i> <span> จัดการระบบ</span>
+              </a>
+            </li>
+
+        </section>
+        <!-- /.sidebar -->
+        <!-- </section> -->
+        <!-- /.sidebar -->
+      </aside>
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+
+        <!-- Main content -->
+        <section class="content">
+
+          <!-- Your Page Content Here -->
+
+        </section><!-- /.content -->
+      </div><!-- /.content-wrapper -->
+
+      <!-- Main Footer -->
+      <footer class="main-footer">
+        <!-- To the right -->
+        <div class="pull-right hidden-xs">
+          Anything you want
+        </div>
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2015 <a href="https://www.facebook.com/jackdevil.lucifer">Infinity Network</a>.</strong> All rights reserved.
+      </footer>
+
+      <!-- Add the sidebar's background. This div must be placed
+           immediately after the control sidebar -->
+      <div class="control-sidebar-bg"></div>
+    </div><!-- ./wrapper -->
+
+    <!-- REQUIRED JS SCRIPTS -->
+
+    <!-- jQuery 2.1.4 -->
+    <script src="../plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../dist/js/app.min.js"></script>
+
+    <!-- Optionally, you can add Slimscroll and FastClick plugins.
+         Both of these plugins are recommended to enhance the
+         user experience. Slimscroll is required when using the
+         fixed layout. -->
+  </body>
+</html>

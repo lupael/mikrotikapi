@@ -1,0 +1,408 @@
+<?php
+	session_start();
+	ob_start();
+	include("../include/class.mysqldb.php");
+	include("../include/config.inc.php");	
+	if($_SESSION['APIUser'] == '' and $_SESSION['EmpUser']==''){
+		echo "<meta http-equiv='refresh' content='0;url=../logout.php' />";
+		exit();		
+	}else if($_SESSION['id'] == ''){
+		echo "<meta http-equiv='refresh' content='0;url=../index.php' />";
+		exit();
+	}
+
+?>
+
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>API MikroTik - Administrator</title>
+ <!-- New -->    
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- jvectormap -->
+    <link rel="stylesheet" href="../plugins/jvectormap/jquery-jvectormap-1.2.2.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="../dist/css/skins/_all-skins.min.css">
+ <!-- New -->   
+
+    <!-- Custom Fonts -->
+    <link href="../font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+
+      <!-- Main Header -->
+      <header class="main-header">
+
+        <!-- Logo -->
+        <a href="" class="logo">
+          <!-- mini logo for sidebar mini 50x50 pixels -->
+          <span class="logo-mini"><b>API</b></span>
+          <!-- logo for regular state and mobile devices -->
+          <span class="logo-lg">ผู้ดูแลระบบ API</span>
+        </a>
+
+        <!-- Header Navbar -->
+        <nav class="navbar navbar-static-top" role="navigation">
+          <!-- Sidebar toggle button-->
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <span class="sr-only">Toggle navigation</span>
+          </a>
+          <!-- Navbar Right Menu -->
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+              <!-- User Account Menu -->
+              <li class="dropdown user user-menu">
+                <!-- Menu Toggle Button -->
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <!-- The user image in the navbar-->
+                  <img src="../dist/img/logo.png" class="user-image" alt="User Image">
+                  <!-- hidden-xs hides the username on small devices so only the image appears. -->
+                  <span class="hidden-xs">Infininity Network</span>
+                </a>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!-- Left side column. contains the logo and sidebar -->
+      <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+          <!-- Sidebar user panel (optional) -->
+          <div class="user-panel">
+            <div class="pull-left image">
+              <img src="../dist/img/logo.png" class="img-circle" alt="User Image">
+            </div>
+            <div class="pull-left info">
+              <p>Infinity Network</p>
+              <!-- Status -->
+              <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+          </div>
+
+          <ul class="sidebar-menu">
+           <li class="header">เมนูหลัก</li>
+            <li class="active treeview">
+              <a href="index.php">
+                <i class="fa fa-dashboard"></i> <span>&nbsp; รายละเอียดของระบบ</span>              </a>            </li>
+            
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-user fa-fw"></i> <span>&nbsp; การจัดการผู้ใช้</span>
+                <i class="fa fa-angle-left pull-right"></i>              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> Hotspot<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_user"><i class="fa fa-eye"></i> เพิ่มผู้ใช้งาน (หนึ่ง)</a></li>
+                    <li><a href="index.php?opt=add_genuser"><i class="fa fa-eye"></i> เพิ่มผู้ใช้งาน (กลุ่ม)</a></li>
+                    <li><a href="index.php?opt=user_list"><i class="fa fa-eye"></i> แสดงผู้ใช้งานทั้งหมด</a></li>
+                    <li><a href="index.php?opt=Import_User"><i class="fa fa-eye"></i> นำเข้าผู้ใช้งานจาก CSV </a></li>
+				  </ul>
+                </li>
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> PPPoE<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_pppoe"><i class="fa fa-eye"></i> เพิ่มผู้ใช้งาน (หนึ่ง)</a></li>
+                    <li><a href="index.php?opt=add_genpppoe"><i class="fa fa-eye"></i> เพิ่มผู้ใช้งาน (กลุ่ม)</a></li>
+                    <li><a href="index.php?opt=pppoe_list"><i class="fa fa-eye"></i> แสดงผู้ใช้งานทั้งหมด</a></li>
+                <!--    <li><a href="#"><i class="fa fa-circle-o"></i> เพิ่มผู้ใช้งาน (กลุ่ม)</a></li>  -->
+                  </ul>
+                </li>
+                <!--  <li><a href="index.php?opt=user_list"><i class="fa fa-eye"></i> แสดงผู้ใช้งานทั้งหมด</a></li> -->
+              </ul>
+            </li>
+
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-edit fa-fw"></i> <span>&nbsp; การจัดการแพคเกจ</span>
+                <i class="fa fa-angle-left pull-right"></i>              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> Hotspot<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_profile"><i class="fa fa-eye"></i> เพิ่มแพคเกจ</a></li>
+                    <li><a href="index.php?opt=profile"><i class="fa fa-eye"></i> แสดงรายละเอียดแพคเกจ</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#"><i class="fa fa-circle-o"></i> PPPoE<i class="fa fa-angle-left pull-right"></i></a>
+                  <ul class="treeview-menu">
+                    <li><a href="index.php?opt=add_profile_pppoe"><i class="fa fa-eye"></i> เพิ่มแพคเกจ</a></li>
+                    <li><a href="index.php?opt=profile_pppoe"><i class="fa fa fa-eye"></i> แสดงรายละเอียดแพคเกจ</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-bar-chart-o fa-fw"></i> <span>&nbsp; ผู้ใช้งานออนไลน์</span>
+                <i class="fa fa-angle-left pull-right"></i>              </a>
+              <ul class="treeview-menu">
+                <li><a href="index.php?opt=useronline"><i class="fa fa-eye"></i> Hotspot</a></li>
+                <li><a href="index.php?opt=pppoeonline"><i class="fa fa-eye"></i> PPPoE</a></li>
+              </ul>
+            </li>
+
+            <li class="treeview">
+              <a href="../index.php">
+                <i class="fa fa-desktop"></i> <span>&nbsp; จัดการระบบ</span>              </a>            </li>
+
+        </section>
+        <!-- /.sidebar -->
+        <!-- </section> -->
+        <!-- /.sidebar -->
+      </aside>
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+          <h1><div class="panel bg-olive"><i class="fa fa-cog fa-spin"></i>
+            ระบบจัดการ MikroTik by LYnetwork
+          </h1>
+
+          <!--         <ol class="breadcrumb">
+            <li><a href="../index.php"><i class="fa fa-dashboard"></i> จัดการระบบ</a></li>
+            <li class="active">รายละเอียดของระบบ</li>
+          </ol>  -->
+        </section>
+
+        <!-- Main content -->
+     <? if(!isset($_REQUEST['opt'])) { ?>
+        <!-- Page Content -->
+    <?php
+      include('../config/routeros_api.class.php');  
+      include("conn.php");
+      $ARRAY = $API->comm("/system/resource/print");
+      $ram =  $ARRAY['0']['free-memory']/1048576;
+      $hdd =  $ARRAY['0']['free-hdd-space']/1048576;
+    ?>
+        <!-- Main content -->
+        <section class="content">
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                     <div class="row">
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel bg-teal">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-cogs fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="board-name"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a>
+                            <div class="panel-footer">
+                                <span class="pull-left"><?php echo "".$ARRAY['0']['board-name'].""; ?> <?php echo "(".$ARRAY['0']['architecture-name'].""; ?>-<?php echo "v.".$ARRAY['0']['version'].")"; ?></span>                                
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel bg-red">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-cog fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="cpu"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a>
+                            <div class="panel-footer">
+                                <span class="pull-left">CPU Load <?php echo " ".$ARRAY['0']['cpu-load']."%"; ?></span>                                
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel bg-blue">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-tasks fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="memory"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a>
+                            <div class="panel-footer">
+                                <span class="pull-left">Free Memory <?php echo " ".round($ram,1)." MB"; ?></span>                                
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel bg-purple">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-database fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="hdd"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a>
+                            <div class="panel-footer">
+                                <span class="pull-left">Free HDD <?php echo " ".round($hdd,1)." MB"; ?></span>                                
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel bg-green">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-spinner fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="uptime"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a>
+                            <div class="panel-footer">
+                                <span class="pull-left">Uptime <?php echo " ".$ARRAY['0']['uptime']; ?></span>                               
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                    <?php
+                    $ARRAY = $API->comm("/system/routerboard/print"); 
+                    ?>
+                <div class="col-lg-4 col-md-6">
+                    <div class="panel bg-yellow">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-cubes fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="serial-number"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a>
+                            <div class="panel-footer">
+                                <span class="pull-left">Serial Number <?php echo " ".$ARRAY['0']['serial-number']; ?></span>                               
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+                </div>
+                <!-- /.col-lg-12 -->
+</div> 
+
+        </div>
+            <!-- /.row -->
+</div>
+        <!-- /#page-wrapper -->
+    </section>
+    <!-- /#Section Main Content -->
+    </div>
+    <!-- /#Content wrapper -->
+    <?php
+        } else { 
+                include($_REQUEST['opt'] . ".php"); 
+                 } 
+        
+    ?>
+
+      <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+          <b>Version</b> 2.8.0
+        </div>
+        <strong>Copyright &copy; 2015 <a href="https://www.facebook.com/jackdevil.lucifer">LYNetwork</a>.</strong> All rights reserved.
+      </footer>
+
+     
+      <!-- Add the sidebar's background. This div must be placed
+           immediately after the control sidebar -->
+      <div class="control-sidebar-bg"></div>
+
+    <!-- jQuery 2.1.4 -->
+    <script src="../plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <!-- FastClick -->
+    <script src="../plugins/fastclick/fastclick.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../dist/js/app.min.js"></script>
+    <!-- Sparkline -->
+    <script src="../plugins/sparkline/jquery.sparkline.min.js"></script>
+    <!-- jvectormap -->
+    <script src="../plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+    <script src="../plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <!-- SlimScroll 1.3.0 -->
+    <script src="../plugins/slimScroll/jquery.slimscroll.min.js"></script>
+    <!-- ChartJS 1.0.1 -->
+    <script src="../plugins/chartjs/Chart.min.js"></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="../dist/js/pages/dashboard2.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../dist/js/demo.js"></script>
+    
+    <!-- Page-Level Demo Scripts - Tables - Use for reference -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTables-example').dataTable();
+    });
+    </script>   
+
+</body>
+
+</html>

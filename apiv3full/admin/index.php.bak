@@ -1,0 +1,230 @@
+<?php
+	session_start();
+	if($_SESSION['APIUser'] == ''){
+		echo "<meta http-equiv='refresh' content='0;url=login.php' />";
+		exit(0);
+	}
+	unset($_SESSION['id']);
+	require('../config/routeros_api.class.php');
+	include("../include/class.mysqldb.php");
+	include("../include/config.inc.php");	
+	if(!empty($_GET['did'])){
+		mysql_query("DELETE FROM mt_config WHERE mt_id='".$_GET['did']."'");
+		echo "<meta http-equiv=\"refresh\" content=\"0;url=index.php\">";
+		exit(0);
+	}	
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta http-equiv="refresh" content="60">
+    <meta name="author" content="">
+
+    <title>Administrator</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="../css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+	 <!-- DataTables CSS -->
+    <link href="../css/plugins/dataTables.bootstrap.css" rel="stylesheet">
+
+    
+    <!-- Custom CSS -->
+    <link href="../css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+<!--
+.style1 {
+	font-size: 24px;
+	color: #FF0000;
+	font-weight: bold;
+}
+.style2 {
+	font-size: 20px;
+	color: #006600;
+}
+.style3 {color: #006600}
+.style4 {color: #990000}
+.style5 {
+	color: #FF0000;
+	font-weight: bold;
+}
+-->
+    </style>
+</head>
+
+<body>
+
+     <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+<div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <p><img src="../img/logo_new800.png" alt="img11" width="152" height="55" longdesc="../img/logo_new800.png"> <span class="style1">API</span> <span class="style2">by Lamyang Internet </span></p>
+                <p>&nbsp;</p>
+</div>
+            <p>
+              <!-- /.navbar-header -->
+              
+              
+              <!-- /.navbar-top-links -->
+              
+<div class="navbar-default sidebar" role="navigation">
+              <div class="sidebar-nav navbar-collapse">
+            </p>
+            <p>&nbsp; </p>
+            <ul class="nav" id="side-menu">
+                        <li>
+                            <a href="index.php"> <strong>ไซต์งานทั้งหมด</strong> </a>                        </li>
+						<li>
+                            <a href="index.php?opt=add_site"> <strong>เพิ่มไซต์งาน</strong> </a>                        </li> 
+						<li>
+                            <a href="index.php?opt=change_pass"> <strong>เปลี่ยนรหัสผ่าน </strong></a>                        </li>
+						 <li>
+                            <a href="logout.php"> <strong>ออกจากระบบ</strong> </a>                        </li> 
+</ul>
+            <!-- /.navbar-static-side -->
+        </nav>        
+		 <? if(!isset($_REQUEST['opt'])) { ?>
+        <!-- Page Content -->
+       <div id="page-wrapper">
+           <br />
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading style4">
+                              <span class="style5">ข้อมูลไซต์งาน</span>
+                          <div class="pull-right">
+                            <a href="index.php"><img src="../img/refresh.png" width="20" title="Refresh"></a>                            </div>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                            	<form name="site" action="" method="post">
+                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <thead>
+                                        <tr>     
+                                        	<th><span class="style3">ลำดับ</span></th> 
+                                            <th><span class="style3">ชื่อไซต์งาน</span></th> 
+                                            <th><span class="style3">สถานที่</span></th>                                                                       	
+                                            <th><span class="style3">ซีพียู</span></th>                                           
+                                            <th><span class="style3">แรม</span></th>
+                                            <th><span class="style3">ฮาร์ดดิส</span></th>                                            
+                                            <th><span class="style3">สถานะ</span></th>
+                                   			<th><span class="style3">จัดการ</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                            
+												<?php
+													$sql=mysql_query("SELECT * FROM mt_config");
+													$no=0;
+													while($result=mysql_fetch_array($sql)){
+													$no++;
+													$API = new routeros_api();				
+													$API->debug = false;
+													if($API->connect($result['mt_ip'], $result['mt_user'], $result['mt_pass'])){																			
+														$ARRAY = $API->comm("/system/resource/print");	
+														$ram =	$ARRAY['0']['free-memory']/1048576;
+														$hdd =	$ARRAY['0']['free-hdd-space']/1048576;												
+													}																												
+													echo "<tr>";
+														echo "<td>".$no."</td>";																																							
+														echo "<td>".$result['mt_name']."</td>";														
+														echo "<td>".$result['mt_location']."</td>";
+														echo "<td>";
+														if($ARRAY['0']['cpu-load']==""){ 
+															echo "-";
+														}else{
+															echo $ARRAY['0']['cpu-load']."%";															 							
+														}
+														echo "</td>";
+														echo "<td>".round($ram,1)." MB</td>";
+														echo "<td>".round($hdd,1)." MB</td>";
+														echo "<td>";
+															if($API->connect($result['mt_ip'], $result['mt_user'], $result['mt_pass'])){
+																echo "<button type=\"button\" class=\"btn btn-success\"><i class=\"fa fa-check\"></i> CONNECT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>";
+																$conn="connect";	
+															}else{
+																echo "<button type=\"button\" class=\"btn btn-danger\"><i class=\"fa fa-times\"></i> DISCONNECT</button>";
+																$conn="disconnect";
+															}																	
+														echo "</td>";	
+																											
+														echo "<td><a href='../site/site_conn.php?id=".$result['mt_id']."&conn=".$conn."'><img src=\"../img/enter.png\" width=\"20\" title=\"Enter To Site\"></a>
+														<a href='index.php?opt=edit_site&id=".$result['mt_id']."'><img src=\"../img/edit.png\" width=\"20\"   title=\"Edit Site\"></a>
+														<a href='javascript:void(0)' onClick=\"JavaScript:if(confirm('คุณต้องการลบหรือไม่!!!')==true)
+                {window.location='index.php?did=".$result['mt_id']."'}\"><img src=\"../img/delete.png\" width=\"20\" title=\"Delete Site\"></a>";												
+													echo "</td>";
+													echo "</tr>";
+													}
+												?>
+                                                                                                                                                                              
+                                    </tbody>
+                                </table>
+                               </form>
+                            </div>
+                           
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+<!-- /#wrapper -->
+		 <?php
+				 } else { 
+            		include($_REQUEST['opt'] . ".php"); 
+                 } 
+          ?>
+    <!-- jQuery Version 1.11.0 -->
+    <script src="../js/jquery-1.11.0.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../js/plugins/metisMenu/metisMenu.min.js"></script>
+
+	 <!-- DataTables JavaScript -->
+    <script src="../js/plugins/dataTables/jquery.dataTables.js"></script>
+    <script src="../js/plugins/dataTables/dataTables.bootstrap.js"></script>
+    
+    <!-- Custom Theme JavaScript -->
+    <script src="../js/sb-admin-2.js"></script>
+    
+    <!-- Page-Level Demo Scripts - Tables - Use for reference -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTables-example').dataTable();
+    });
+    </script>   
+
+</body>
+
+</html>
+
